@@ -14,9 +14,10 @@ type APIServer struct {
   store Storage
 }
 
-func NewAPIServer(listenAddr string) *APIServer {
+func NewAPIServer(listenAddr string, store Storage) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
+    store: store,
 	}
 }
 
@@ -52,7 +53,15 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
-	return nil
+  createAccountRequest := new(CreateAccountRequest)
+
+   if err := json.NewDecoder(r.Body).Decode(createAccountRequest); err != nil {
+     return err
+   }
+
+   account := NewAccount(createAccountRequest.FirstName, createAccountRequest.LastName)
+
+	return WriteJSON(w http.ResponseWriter, status int, v any)
 }
 
 func (s *APIServer) handleDeleteAccount(w http.ResponseWriter, r *http.Request) error {
